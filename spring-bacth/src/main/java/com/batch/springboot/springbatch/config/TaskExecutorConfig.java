@@ -1,4 +1,4 @@
-package com.batch.springboot.csvtomysql.config;
+package com.batch.springboot.springbatch.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

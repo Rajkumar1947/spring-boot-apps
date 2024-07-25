@@ -1,32 +1,28 @@
-package com.batch.springboot.csvtomysql.config;
+package com.batch.springboot.springbatch.config;
 
-import com.batch.springboot.csvtomysql.config.reader.ReaderConfig;
-import com.batch.springboot.csvtomysql.config.writer.ExcelWriter;
-import com.batch.springboot.csvtomysql.model.User;
-import com.batch.springboot.csvtomysql.model.UserDTO;
-import com.batch.springboot.csvtomysql.repository.CustomerRepository;
+import com.batch.springboot.springbatch.config.processor.UserItemProcessor;
+import com.batch.springboot.springbatch.config.reader.ReaderConfig;
+import com.batch.springboot.springbatch.config.writer.ExcelWriter;
+import com.batch.springboot.springbatch.model.User;
+import com.batch.springboot.springbatch.model.UserDTO;
+import com.batch.springboot.springbatch.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
-import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.item.data.RepositoryItemWriter;
-import org.springframework.batch.item.database.JdbcCursorItemReader;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.LineMapper;
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.task.TaskExecutor;
-
-import javax.sql.DataSource;
 
 @Configuration
 @EnableBatchProcessing
@@ -35,7 +31,7 @@ public class SpringBatchConfig {
 
     private JobBuilderFactory jobBuilderFactory;
     private StepBuilderFactory stepBuilderFactory;
-    private CustomerRepository repository;
+    private UserRepository repository;
     private ExcelWriter excelWriter;
     private TaskExecutor taskExecutor;
     private ReaderConfig readerConfig;

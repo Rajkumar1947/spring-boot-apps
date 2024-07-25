@@ -1,4 +1,4 @@
-package com.batch.springboot.csvtomysql.controller;
+package com.batch.springboot.springbatch.controller;
 
 import org.springframework.batch.core.*;
 import org.springframework.batch.core.launch.JobLauncher;

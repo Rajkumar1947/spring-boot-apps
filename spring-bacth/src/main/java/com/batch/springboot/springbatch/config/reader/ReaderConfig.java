@@ -1,9 +1,9 @@
-package com.batch.springboot.csvtomysql.config.reader;
+package com.batch.springboot.springbatch.config.reader;
 
 import javax.sql.DataSource;
 
-import com.batch.springboot.csvtomysql.config.UserRowMapper;
-import com.batch.springboot.csvtomysql.model.UserDTO;
+import com.batch.springboot.springbatch.mapper.UserRowMapper;
+import com.batch.springboot.springbatch.model.UserDTO;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.database.JdbcPagingItemReader;
 import org.springframework.batch.item.database.builder.JdbcPagingItemReaderBuilder;
@@ -26,10 +26,10 @@ public class ReaderConfig {
     public JdbcPagingItemReader<UserDTO> databaseReader(@Value("#{jobParameters['lastName']}") String lastName) throws Exception {
         SqlPagingQueryProviderFactoryBean queryProvider = new SqlPagingQueryProviderFactoryBean();
         queryProvider.setDataSource(dataSource);
-        queryProvider.setSelectClause("select customer_id, first_name, email");
-        queryProvider.setFromClause("from CUSTOMERS_INFO");
+        queryProvider.setSelectClause("select id, first_name, email");
+        queryProvider.setFromClause("from USER_INFO");
         queryProvider.setWhereClause("where first_name = :lastName");
-        queryProvider.setSortKey("customer_id");
+        queryProvider.setSortKey("id");
         return new JdbcPagingItemReaderBuilder<UserDTO>()
                 .name("databaseReader")
                 .dataSource(dataSource)

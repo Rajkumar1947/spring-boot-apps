@@ -1,13 +1,13 @@
-package com.batch.springboot.csvtomysql;
+package com.batch.springboot.springbatch;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class CsvtomysqlApplication {
+public class SpringBatchApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(CsvtomysqlApplication.class, args);
+		SpringApplication.run(SpringBatchApplication.class, args);
 	}
 
 }

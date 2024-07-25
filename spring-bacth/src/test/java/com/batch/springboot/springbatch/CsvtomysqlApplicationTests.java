@@ -1,4 +1,4 @@
-package com.batch.springboot.csvtomysql;
+package com.batch.springboot.springbatch;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

@@ -1,4 +1,4 @@
-package com.batch.springboot.csvtomysql.model;
+package com.batch.springboot.springbatch.model;
 
 import lombok.*;
 

@@ -1,6 +1,6 @@
-package com.batch.springboot.csvtomysql.config.writer;
+package com.batch.springboot.springbatch.config.writer;
 
-import com.batch.springboot.csvtomysql.model.UserDTO;
+import com.batch.springboot.springbatch.model.UserDTO;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.batch.item.ItemWriter;

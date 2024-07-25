@@ -1,4 +1,4 @@
-package com.batch.springboot.csvtomysql.model;
+package com.batch.springboot.springbatch.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -10,14 +10,13 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "CUSTOMERS_INFO")
+@Table(name = "USER_INFO")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class User {
 
     @Id
-    @Column(name = "CUSTOMER_ID")
     private int id;
     @Column(name = "FIRST_NAME")
     private String firstName;
