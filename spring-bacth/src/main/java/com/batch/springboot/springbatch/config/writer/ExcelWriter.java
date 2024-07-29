@@ -11,16 +11,21 @@ import java.io.IOException;
 import java.util.List;
 
 @Component
-public class ExcelWriter implements ItemWriter<UserDTO> {
+public class ExcelWriter  {
 
+    String outputFileName;
     private static final String[] COLUMN_HEADERS = {"First Name", "Email"};
     private static final String FILE_PATH = "output.xlsx";
     private Workbook workbook = new XSSFWorkbook();
     private Sheet sheet = workbook.createSheet("Customers");
     private int rowIndex = 0;
 
-    public ExcelWriter() {
+    public  ExcelWriter() {
+
+    }
+    public ExcelWriter(String outputFileName) {
         // Create header row
+        this.outputFileName = outputFileName;
         Row headerRow = sheet.createRow(rowIndex++);
         for (int i = 0; i < COLUMN_HEADERS.length; i++) {
             Cell cell = headerRow.createCell(i);
@@ -28,7 +33,7 @@ public class ExcelWriter implements ItemWriter<UserDTO> {
         }
     }
 
-    @Override
+//    @Override
     public synchronized void write(List<? extends UserDTO> items) throws IOException {
         for (UserDTO user : items) {
             Row row = sheet.createRow(rowIndex++);

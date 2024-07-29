@@ -2,27 +2,27 @@ package com.batch.springboot.springbatch.config;
 
 import com.batch.springboot.springbatch.config.processor.UserItemProcessor;
 import com.batch.springboot.springbatch.config.reader.ReaderConfig;
-import com.batch.springboot.springbatch.config.writer.ExcelWriter;
 import com.batch.springboot.springbatch.model.User;
 import com.batch.springboot.springbatch.model.UserDTO;
 import com.batch.springboot.springbatch.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
-import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
-import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
-import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.configuration.annotation.*;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
+import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.data.RepositoryItemWriter;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.LineMapper;
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.task.TaskExecutor;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 @Configuration
 @EnableBatchProcessing
@@ -32,8 +32,8 @@ public class SpringBatchConfig {
     private JobBuilderFactory jobBuilderFactory;
     private StepBuilderFactory stepBuilderFactory;
     private UserRepository repository;
-    private ExcelWriter excelWriter;
-    private TaskExecutor taskExecutor;
+//    private ExcelWriter excelWriter;
+//    private TaskExecutor taskExecutor;
     private ReaderConfig readerConfig;
 
     @Bean
@@ -78,7 +78,7 @@ public class SpringBatchConfig {
                 .reader(reader())
                 .processor(processor())
                 .writer(writer())
-                .taskExecutor(taskExecutor)
+                .taskExecutor(taskExecutor())
                 .build();
     }
 
@@ -88,14 +88,22 @@ public class SpringBatchConfig {
                 .flow(step1()).end().build();
 
     }
+
+    @Bean
+    @StepScope
+    public ItemWriter<UserDTO> synchronizedExcelItemWriter(@Value("#{jobParameters['outputFileName']}") String outputFileName) {
+        System.out.println("outputFileName:: " +outputFileName);
+        return new SynchronizedExcelItemWriter(outputFileName);
+    }
+
     // Read data from database and write in excel
     @Bean
     public Step writeExcelFile() throws Exception {
         return stepBuilderFactory.get("writeExcelFile")
                 .<UserDTO, UserDTO>chunk(100)
                 .reader(readerConfig.databaseReader(""))
-                .writer(excelWriter)
-                .taskExecutor(taskExecutor)  // Enable multi-threaded processing
+                .writer(synchronizedExcelItemWriter(""))
+                .taskExecutor(taskExecutor())  // Enable multi-threaded processing
                 .throttleLimit(10)           // Set the maximum number of concurrent threads
                 .build();
     }
@@ -105,6 +113,16 @@ public class SpringBatchConfig {
                 .incrementer(new RunIdIncrementer())
                 .flow(writeExcelFile())
                 .end().build();
+    }
+    @Bean
+    public TaskExecutor taskExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(4);
+        executor.setMaxPoolSize(4);
+        executor.setQueueCapacity(10);
+        executor.setThreadNamePrefix("batch-thread-");
+        executor.initialize();
+        return executor;
     }
 
 }

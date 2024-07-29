@@ -35,7 +35,7 @@ public class JobController {
         try {
             JobParameters jobParameters = new JobParametersBuilder()
                     .addString("jobName", job.getName())
-                    .addString("date", LocalDateTime.now().toString())
+                    .addString("outputFileName", "output-"+ lastName+".xlsx")
                     .addString("lastName", lastName)
                     .toJobParameters();
 

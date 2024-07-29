@@ -26,10 +26,11 @@ public class ReaderConfig {
     public JdbcPagingItemReader<UserDTO> databaseReader(@Value("#{jobParameters['lastName']}") String lastName) throws Exception {
         SqlPagingQueryProviderFactoryBean queryProvider = new SqlPagingQueryProviderFactoryBean();
         queryProvider.setDataSource(dataSource);
+        System.out.println("Last name:: " +lastName);
         queryProvider.setSelectClause("select id, first_name, email");
         queryProvider.setFromClause("from USER_INFO");
         queryProvider.setWhereClause("where first_name = :lastName");
-        queryProvider.setSortKey("id");
+        queryProvider.setSortKey("email");
         return new JdbcPagingItemReaderBuilder<UserDTO>()
                 .name("databaseReader")
                 .dataSource(dataSource)
