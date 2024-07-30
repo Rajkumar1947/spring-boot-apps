@@ -52,6 +52,7 @@ public class SynchronizedExcelItemWriter implements ItemWriter<UserDTO> {
             for (UserDTO item : items) {
                 Row row = sheet.createRow(rowNum++);
                 row.createCell(0).setCellValue(item.getId());
+                row.createCell(2).setCellValue(item.getFirstName());
                 row.createCell(1).setCellValue(item.getEmail());
             }
 

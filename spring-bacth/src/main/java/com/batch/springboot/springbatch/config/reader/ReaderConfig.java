@@ -6,6 +6,7 @@ import com.batch.springboot.springbatch.mapper.UserRowMapper;
 import com.batch.springboot.springbatch.model.UserDTO;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.database.JdbcPagingItemReader;
+import org.springframework.batch.item.database.Order;
 import org.springframework.batch.item.database.builder.JdbcPagingItemReaderBuilder;
 import org.springframework.batch.item.database.support.SqlPagingQueryProviderFactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 @Configuration
 public class ReaderConfig {
@@ -30,7 +33,7 @@ public class ReaderConfig {
         queryProvider.setSelectClause("select id, first_name, email");
         queryProvider.setFromClause("from USER_INFO");
         queryProvider.setWhereClause("where first_name = :lastName");
-        queryProvider.setSortKey("email");
+        queryProvider.setSortKeys(setSortKey());
         return new JdbcPagingItemReaderBuilder<UserDTO>()
                 .name("databaseReader")
                 .dataSource(dataSource)
@@ -39,6 +42,13 @@ public class ReaderConfig {
                 .parameterValues(Collections.singletonMap("lastName", lastName))
                 .rowMapper(new UserRowMapper())
                 .build();
+    }
+
+    private Map<String, Order> setSortKey() {
+        Map<String,Order> sortKey = new HashMap<>();
+        sortKey.put("email",Order.ASCENDING);
+        sortKey.put("id",Order.ASCENDING);
+        return sortKey;
     }
 }
 

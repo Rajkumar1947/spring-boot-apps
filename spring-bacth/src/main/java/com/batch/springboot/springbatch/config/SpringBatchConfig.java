@@ -1,5 +1,6 @@
 package com.batch.springboot.springbatch.config;
 
+import com.batch.springboot.springbatch.config.processor.ExcelItemProcessor;
 import com.batch.springboot.springbatch.config.processor.UserItemProcessor;
 import com.batch.springboot.springbatch.config.reader.ReaderConfig;
 import com.batch.springboot.springbatch.model.User;
@@ -103,10 +104,17 @@ public class SpringBatchConfig {
                 .<UserDTO, UserDTO>chunk(100)
                 .reader(readerConfig.databaseReader(""))
                 .writer(synchronizedExcelItemWriter(""))
+                .processor(excelFileProcessor())
                 .taskExecutor(taskExecutor())  // Enable multi-threaded processing
                 .throttleLimit(10)           // Set the maximum number of concurrent threads
                 .build();
     }
+
+    @Bean
+    public ExcelItemProcessor excelFileProcessor() {
+        return new ExcelItemProcessor();
+    }
+
     @Bean
     public Job exportUser() throws Exception {
         return jobBuilderFactory.get("exportUser")
