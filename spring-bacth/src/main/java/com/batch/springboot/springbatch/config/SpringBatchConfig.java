@@ -3,22 +3,22 @@ package com.batch.springboot.springbatch.config;
 import com.batch.springboot.springbatch.config.processor.ExcelItemProcessor;
 import com.batch.springboot.springbatch.config.processor.UserItemProcessor;
 import com.batch.springboot.springbatch.config.reader.ReaderConfig;
+import com.batch.springboot.springbatch.config.writer.MyStepExecutionListener;
 import com.batch.springboot.springbatch.model.User;
 import com.batch.springboot.springbatch.model.UserDTO;
 import com.batch.springboot.springbatch.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
+import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.configuration.annotation.*;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
-import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.data.RepositoryItemWriter;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.LineMapper;
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
@@ -36,6 +36,8 @@ public class SpringBatchConfig {
 //    private ExcelWriter excelWriter;
 //    private TaskExecutor taskExecutor;
     private ReaderConfig readerConfig;
+    private SynchronizedExcelItemWriter stepScopedItemWriter;
+
 
     @Bean
     public FlatFileItemReader<User> reader() {
@@ -90,35 +92,38 @@ public class SpringBatchConfig {
 
     }
 
-    @Bean
-    @StepScope
-    public ItemWriter<UserDTO> synchronizedExcelItemWriter(@Value("#{jobParameters['outputFileName']}") String outputFileName) {
-        System.out.println("outputFileName:: " +outputFileName);
-        return new SynchronizedExcelItemWriter(outputFileName);
-    }
-
     // Read data from database and write in excel
     @Bean
     public Step writeExcelFile() throws Exception {
         return stepBuilderFactory.get("writeExcelFile")
                 .<UserDTO, UserDTO>chunk(100)
                 .reader(readerConfig.databaseReader(""))
-                .writer(synchronizedExcelItemWriter(""))
                 .processor(excelFileProcessor())
+                .writer(stepScopedItemWriter)
                 .taskExecutor(taskExecutor())  // Enable multi-threaded processing
-                .throttleLimit(10)           // Set the maximum number of concurrent threads
+                .throttleLimit(10)
+                // Set the maximum number of concurrent threads
+                .listener(myStepExecutionListener())
                 .build();
     }
-
+    @Bean
+    public StepExecutionListener myStepExecutionListener() {
+        return new MyStepExecutionListener();
+    }
     @Bean
     public ExcelItemProcessor excelFileProcessor() {
         return new ExcelItemProcessor();
     }
 
     @Bean
+    public JobCompletionListener jobCompletionListener() {
+        return new JobCompletionListener();
+    }
+    @Bean
     public Job exportUser() throws Exception {
         return jobBuilderFactory.get("exportUser")
                 .incrementer(new RunIdIncrementer())
+                .listener(jobCompletionListener())
                 .flow(writeExcelFile())
                 .end().build();
     }

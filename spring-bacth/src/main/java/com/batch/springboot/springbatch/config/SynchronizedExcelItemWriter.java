@@ -1,67 +1,67 @@
 package com.batch.springboot.springbatch.config;
 
-import com.batch.springboot.springbatch.model.User;
 import com.batch.springboot.springbatch.model.UserDTO;
-import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.ItemWriter;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.List;
 
+@Component
+@StepScope
 public class SynchronizedExcelItemWriter implements ItemWriter<UserDTO> {
 
+    private final SXSSFWorkbook workbook;
+    private final SXSSFSheet sheet;
     private final String outputFileName;
-
+    private int rowNum = 0;
     private final Object lock = new Object();
-//    volatile int rowNum = 0;
 
-    public SynchronizedExcelItemWriter(String outputFileName) {
-        System.out.println("outputFileName:" +outputFileName);
+
+    public SynchronizedExcelItemWriter(@Value("#{jobParameters[outputFileName]}") String outputFileName) {
         this.outputFileName = outputFileName;
-//        this.outputFileName = outputFileName;
+        this.workbook = new SXSSFWorkbook(100); // Keep 100 rows in memory at a time
+        this.sheet = workbook.createSheet("Data");
+        createHeaderRow();
+    }
 
+    private void createHeaderRow() {
+        Row headerRow = sheet.createRow(rowNum++);
+        headerRow.createCell(0).setCellValue("ID");
+        headerRow.createCell(1).setCellValue("First Name");
+        headerRow.createCell(2).setCellValue("Email");
     }
 
     @Override
-    public void write(List<? extends UserDTO> items) throws Exception {
+    public void write(List<? extends UserDTO> items) throws IOException {
         synchronized (lock) {
-            File file = new File(outputFileName);
-            XSSFWorkbook workbook;
-            XSSFSheet sheet;
-
-            // If the file exists and is not empty, open the existing workbook
-            if (file.exists() && file.length() != 0) {
-                try (FileInputStream fis = new FileInputStream(file)) {
-                    workbook = new XSSFWorkbook(fis);
-                }
-                sheet = workbook.getSheetAt(0);
-            } else {
-                // Otherwise, create a new workbook and sheet
-                workbook = new XSSFWorkbook();
-                sheet = workbook.createSheet("Data");
-            }
-
-            // Find the next row number to write
-            int rowNum = sheet.getLastRowNum() + 1;
-
             for (UserDTO item : items) {
                 Row row = sheet.createRow(rowNum++);
                 row.createCell(0).setCellValue(item.getId());
-                row.createCell(2).setCellValue(item.getFirstName());
-                row.createCell(1).setCellValue(item.getEmail());
+                row.createCell(1).setCellValue(item.getFirstName());
+                row.createCell(2).setCellValue(item.getEmail());
             }
 
-            // Write the workbook back to the file
-            try (FileOutputStream fos = new FileOutputStream(outputFileName)) {
-                workbook.write(fos);
+            // Flush rows to disk periodically
+            if (rowNum % 100 == 0) {
+                sheet.flushRows(100); // Retain last 100 rows in memory
             }
         }
     }
+
+    public void close() throws IOException {
+        synchronized (lock) {
+            System.out.println("file closed:");
+            try (FileOutputStream fos = new FileOutputStream(outputFileName)) {
+                workbook.write(fos);
+            }
+            workbook.dispose();
+        }
+    }
 }
-
-
