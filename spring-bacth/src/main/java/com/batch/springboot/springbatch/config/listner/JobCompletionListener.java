@@ -1,11 +1,10 @@
-package com.batch.springboot.springbatch.config;
+package com.batch.springboot.springbatch.config.listner;
 
 //package com.batch.springboot.springbatch.config;
 
+import com.batch.springboot.springbatch.config.writer.SynchronizedExcelItemWriter;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobExecutionListener;
-
-import java.io.IOException;
 
 public class JobCompletionListener implements JobExecutionListener {
 

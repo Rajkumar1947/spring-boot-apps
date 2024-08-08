@@ -1,9 +1,11 @@
 package com.batch.springboot.springbatch.config;
 
+import com.batch.springboot.springbatch.config.listner.JobCompletionListener;
 import com.batch.springboot.springbatch.config.processor.ExcelItemProcessor;
 import com.batch.springboot.springbatch.config.processor.UserItemProcessor;
 import com.batch.springboot.springbatch.config.reader.ReaderConfig;
-import com.batch.springboot.springbatch.config.writer.MyStepExecutionListener;
+import com.batch.springboot.springbatch.config.listner.MyStepExecutionListener;
+import com.batch.springboot.springbatch.config.writer.SynchronizedExcelItemWriter;
 import com.batch.springboot.springbatch.model.User;
 import com.batch.springboot.springbatch.model.UserDTO;
 import com.batch.springboot.springbatch.repository.UserRepository;

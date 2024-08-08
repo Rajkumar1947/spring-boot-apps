@@ -1,11 +1,10 @@
-package com.batch.springboot.springbatch.config.writer;
+package com.batch.springboot.springbatch.config.listner;
 
-import com.batch.springboot.springbatch.config.SynchronizedExcelItemWriter;
+import com.batch.springboot.springbatch.config.writer.SynchronizedExcelItemWriter;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.io.IOException;
 

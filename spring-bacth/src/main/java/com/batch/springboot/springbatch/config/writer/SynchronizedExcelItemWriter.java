@@ -1,4 +1,4 @@
-package com.batch.springboot.springbatch.config;
+package com.batch.springboot.springbatch.config.writer;
 
 import com.batch.springboot.springbatch.model.UserDTO;
 import org.apache.poi.ss.usermodel.Row;
